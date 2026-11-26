@@ -79,18 +79,23 @@ export default function App() {
 
   return (
     <div className="app">
+      <a className="skip-link" href="#test-data">
+        Skip to test data
+      </a>
       <header className="topbar">
         <div className="brand">
-          <img src="/favicon.svg" alt="" width={28} height={28} />
+          <img src="/favicon.svg" alt="" width={36} height={36} />
           <div>
             <h1>Test Data Factory</h1>
-            <p className="muted">Describe a field. Get the values worth testing, and why.</p>
+            <p className="tagline">Describe a field. Get the values worth testing, and why.</p>
           </div>
         </div>
-        <div className="actions">
-          <label className="preset">
-            <span className="muted">Preset</span>
-            <select value="" onChange={(e) => loadPreset(e.target.value)} aria-label="Load a preset (replaces your fields)">
+        <div className="toolbar">
+          <div className="tool">
+            <label className="tool-label" htmlFor="preset">
+              Start from a preset
+            </label>
+            <select id="preset" value="" onChange={(e) => loadPreset(e.target.value)} aria-label="Load a preset (replaces your fields)">
               <option value="" disabled>
                 Load a preset…
               </option>
@@ -100,17 +105,22 @@ export default function App() {
                 </option>
               ))}
             </select>
-          </label>
-          <div className="export" role="group" aria-label="Export all fields">
-            <button type="button" onClick={() => exportAs('csv')} disabled={exportable.length === 0}>
-              CSV
-            </button>
-            <button type="button" onClick={() => exportAs('json')} disabled={exportable.length === 0}>
-              JSON
-            </button>
-            <button type="button" onClick={() => exportAs('ts')} disabled={exportable.length === 0}>
-              Playwright
-            </button>
+          </div>
+          <div className="tool">
+            <span className="tool-label" aria-hidden="true">
+              Export all fields
+            </span>
+            <div className="segmented" role="group" aria-label="Export all fields">
+              <button type="button" onClick={() => exportAs('csv')} disabled={exportable.length === 0}>
+                CSV
+              </button>
+              <button type="button" onClick={() => exportAs('json')} disabled={exportable.length === 0}>
+                JSON
+              </button>
+              <button type="button" onClick={() => exportAs('ts')} disabled={exportable.length === 0}>
+                Playwright
+              </button>
+            </div>
           </div>
         </div>
       </header>
@@ -124,15 +134,18 @@ export default function App() {
         <aside className="panel side" aria-label="Fields">
           <FieldList fields={fields} selectedId={selected?.id} onSelect={setSelectedId} onRemove={removeField} onAdd={addField} />
           {selected && <FieldEditor key={selected.id} field={selected} error={error} onChange={updateField} />}
+          <a className="jump-link" href="#test-data">
+            See the test data ↓
+          </a>
         </aside>
-        <section className="panel" aria-label="Generated test data">
+        <section className="panel data" id="test-data" tabIndex={-1} aria-label="Generated test data">
           {selected ? (
             <ValuesTable field={selected} values={values} error={error} />
           ) : (
             <div className="empty">
               <h2>Add your first field</h2>
               <p className="muted">Describe a form field and its rules, and the test data appears here.</p>
-              <button type="button" onClick={addField}>
+              <button type="button" className="primary" onClick={addField}>
                 Add field
               </button>
             </div>
@@ -140,9 +153,14 @@ export default function App() {
         </section>
       </main>
 
-      <footer className="footer muted">
-        Generated emails use example.com, a domain reserved for testing. Values marked “Confirm” depend on requirements: ask before
-        assuming.
+      <footer className="footer">
+        <p>
+          Generated emails use example.com, a domain reserved for testing. Values marked “Confirm” depend on requirements: ask
+          before assuming.
+        </p>
+        <p>
+          <a href="https://github.com/hhaiel/test-data-factory">Source code, test cases and defect log on GitHub</a>
+        </p>
       </footer>
     </div>
   );

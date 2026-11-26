@@ -19,6 +19,14 @@ test.describe('Accessibility', () => {
       await app.goto();
       expect(await violations(page)).toEqual([]);
 
+      // With the "How to read this table" legend open, and on a phone-sized screen (rows become cards).
+      await page.getByText('How to read this table').click();
+      await expect(page.getByText('Where off-by-one bugs live.', { exact: false })).toBeVisible();
+      expect(await violations(page)).toEqual([]);
+      await page.setViewportSize({ width: 375, height: 812 });
+      expect(await violations(page)).toEqual([]);
+      await page.setViewportSize({ width: 1280, height: 720 });
+
       await app.selectField('Age');
       await expect(app.field('Age').getByRole('button').first()).toHaveAttribute('aria-current', 'true');
       await app.fill('Min value', '99');

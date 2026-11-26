@@ -78,6 +78,7 @@ Treated as an application under test, the same way as OrangeHRM.
 **Done when:** a pasted requirement becomes editable fields.
 
 ## Phase 6: Report + polish (1 day)
+- [x] UI polish: labeled toolbar, type badges, summary line, ✓/✕/? expectations (not color alone), "How to read this table" legend, skip link, sticky table header, rows become cards on phones
 - [ ] Screenshot / short GIF in the README
 - [ ] Short write-up: what you'd test differently in a real project, known limitations
 - [ ] Link the repo from your OrangeHRM and Release Night READMEs
