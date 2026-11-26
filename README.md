@@ -83,7 +83,6 @@ src/
 
 ## Related projects
 
-- [OrangeHRM QA Automation Project](../orangehrm-qa-portfolio): the generated Playwright module can feed its data-driven tests
-- [Release Night: a QA escape room](../release-night-qa-game)
+- [OrangeHRM QA Automation Project](https://github.com/hhaiel/orangehrm-qa-portfolio): the generated Playwright module can feed its data-driven tests
+- [Release Night: a QA escape room](https://github.com/hhaiel/release-night-qa-game)
 
-<!-- Replace the relative links above with GitHub URLs once the repos are public. -->
