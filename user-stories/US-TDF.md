@@ -1,7 +1,7 @@
 # User Stories: Test Data Factory (TDF)
 
 **Module:** Test Data Factory (whole app: field builder, generated values, filters, export, presets)
-**Version:** 0.1.0 (commit 436b645)
+**Version:** 0.1.0 (commit 436b645); US-TDF-0007 added in 0.2.0
 **Roles involved:** Tester (the only role; no sign-in)
 **Source of rules:** written by the developer before testing; the generator rules are in [CLAUDE.md](../CLAUDE.md) and `src/lib/generators/`.
 **Status:** TESTED 2026-11-26 (see test-cases/TC-TDF.md for results). **(verify)** = behavior not decided yet; becomes "Needs confirmation" in test cases.
@@ -128,3 +128,25 @@
 - **AC3:** All controls can be reached with Tab and used with Enter/Space, and focus is always visible.
 - **AC4:** The selected field is announced (`aria-current`), and validation errors are announced (`role="alert"`).
 - **AC5:** The layout works at 375 px wide with no horizontal page scroll (the table may scroll inside its own panel).
+
+---
+
+## US-TDF-0007: Tester describes amount, password and dropdown fields
+
+*Added in Phase 4 (version 0.2.0).*
+
+**As a** tester
+**I want to** describe decimal amounts, passwords and dropdowns
+**So that** I get test data for money fields, sign-up and password forms, and pick-from-a-list fields
+
+**Pre-conditions:** App open.
+
+### Acceptance Criteria
+- **AC1:** The Type list includes **Decimal / amount**, **Password** and **Dropdown**. Choosing one shows its controls with defaults: Decimal: Min value 0, Max value 1000, Decimal places 2. Password: Min length 8, Max length 64, and a "Must contain" group with Uppercase, Lowercase, Number and Symbol all ticked. Dropdown: an "Options (one per line)" box with Option A, Option B, Option C.
+- **AC2:** Decimal boundaries are one smallest step (e.g. 0.01 for 2 decimal places) either side of each limit, shown with exactly the set number of decimal places. A value with one decimal place too many is **Confirm** (rejected or rounded?).
+- **AC3:** Decimal rule errors: decimal places outside 0–6 → "Decimal places must be a whole number from 0 to 6"; a limit with more decimal places than allowed → "Min has more decimal places than allowed (2)"; a limit that isn't a plain number (e.g. `1e2`, `1,000`) → "Min must be a number"; min greater than max → "Min can't be greater than max".
+- **AC4:** Password length boundaries meet every ticked rule, so only the length is being tested. There is one Invalid value per ticked rule ("No uppercase letter, otherwise valid"); unticking a rule removes its value.
+- **AC5:** A password Min or Max length shorter than the number of ticked rules shows "Min length must be at least N to fit the required character types" (or Max).
+- **AC6:** Dropdown: the first and last options are Boundary, up to 4 options in between are Valid, and Invalid/Nasty values include one that isn't an option, two options at once, a different letter case and a trailing space. Options are one per line; blank lines and surrounding spaces are ignored. No options → "Add at least one option"; a repeated option → "Options must be unique: "X" is listed twice".
+- **AC7:** Presets **Change password** (Current password, New password) and **Payment** (Amount (₱), Payment method, Tip (₱)) use the new types.
+- **AC8:** Fields of the new types are included in every export and kept after a reload.

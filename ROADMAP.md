@@ -9,7 +9,7 @@ Phase 0  Setup                         ½ day
 Phase 1  First version (done)          ✓
 Phase 2  QA the tool (done)            ✓
 Phase 3  CI + deploy (done)            ✓
-Phase 4  More field types + nasties    3–4 days
+Phase 4  More field types (done)       ✓
 Phase 5  Plain-English input (AI)      2–3 days
 Phase 6  Report + polish               1 day
 ```
@@ -18,7 +18,7 @@ Phase 6  Report + polish               1 day
 
 ## Phase 0: Setup (½ day)
 - [ ] `npm install`, `npm run dev`, open http://localhost:5173 and try every preset
-- [ ] `npm test` passes (78 unit tests) and `npm run test:e2e` passes (48 passed, 3 skipped)
+- [ ] `npm test` passes (118 unit tests) and `npm run test:e2e` passes (60 passed, 6 skipped)
 - [ ] `git init`, first commit, create a **public** GitHub repo, push
 - [ ] Read through `src/lib/generators/` so you can explain every value in an interview
 
@@ -58,17 +58,16 @@ Treated as an application under test, the same way as OrangeHRM.
 
 **Done when:** green badge, live link. ✓
 
-## Phase 4: More field types + nasty values (3–4 days)
-Pick what's most useful; each type needs generators + unit tests.
-- [ ] Decimal / currency (₱, 2 decimal places, rounding)
-- [ ] Password with rules (length, character classes)
-- [ ] Dropdown / enum (valid options, a removed option, wrong case)
-- [ ] URL, PH postal code, time
-- [ ] Optional "advanced nasty" pack: Unicode normalization (é as one vs two characters), very long words, homoglyphs
-- [ ] Import / export field definitions as JSON so a set can be shared
-- [ ] Export as Postman data file
+## Phase 4: More field types ✓ (version 0.2.0)
+- [x] Decimal / amount (min, max, 0–6 decimal places; calculated in whole units, so no floating-point drift)
+- [x] Password with rules (length plus uppercase, lowercase, number, symbol; one invalid value per rule)
+- [x] Dropdown (first/last as boundaries, values only an API can send, letter case, trailing space)
+- [x] Presets: Change password, Payment
+- [x] User story US-TDF-0007 with 8 test cases, 40 new unit tests, `tests/ui/new-types.spec.ts` with axe on each new editor
+- [x] DEF-006 found and fixed: wrapped labels added the control's value to its accessible name
+- [ ] Still open, pick any later: URL, PH postal code, time; "advanced nasty" pack (Unicode normalization, homoglyphs); import/export field definitions as JSON; Postman data file export
 
-**Done when:** at least 3 new types, each with tests.
+**Done when:** at least 3 new types, each with tests. ✓
 
 ## Phase 5: Plain-English input with AI (2–3 days, optional)
 - [ ] "Describe your form" box: paste a requirement ("Age must be 18–65 and is required") and get field definitions back

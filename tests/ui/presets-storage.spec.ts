@@ -13,7 +13,7 @@ test.describe('Presets and saved fields', () => {
   test('US-TDF-0005-TC-002 Each preset replaces the fields and selects the first one', async ({ page }) => {
     const app = new FactoryPage(page);
     await app.goto();
-    await expect(app.preset.getByRole('option')).toHaveText(['Load a preset…', 'User signup', 'Leave request', 'Checkout']);
+    await expect(app.preset.getByRole('option')).toHaveText(['Load a preset…', 'User signup', 'Leave request', 'Change password', 'Payment', 'Checkout']);
 
     await app.loadPreset('Leave request');
     expect(await app.fieldNames()).toEqual(['Start date', 'Days requested', 'Reason']);

@@ -30,6 +30,21 @@ export const PRESETS: Preset[] = [
     ],
   },
   {
+    name: 'Change password',
+    fields: [
+      { name: 'Current password', type: 'password', required: true, min: 1, max: 64, rules: { upper: false, lower: false, digit: false, symbol: false } },
+      { name: 'New password', type: 'password', required: true, min: 8, max: 64, rules: { upper: true, lower: true, digit: true, symbol: true } },
+    ],
+  },
+  {
+    name: 'Payment',
+    fields: [
+      { name: 'Amount (₱)', type: 'decimal', required: true, min: 1, max: 50_000, decimals: 2 },
+      { name: 'Payment method', type: 'dropdown', required: true, options: ['GCash', 'Maya', 'Credit card', 'Bank transfer'] },
+      { name: 'Tip (₱)', type: 'decimal', required: false, min: 0, max: 1000, decimals: 2 },
+    ],
+  },
+  {
     name: 'Checkout',
     fields: [
       { name: 'Quantity', type: 'integer', required: true, min: 1, max: 99 },

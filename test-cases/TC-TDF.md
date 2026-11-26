@@ -3,7 +3,7 @@
 **Source of truth:** [user-stories/US-TDF.md](../user-stories/US-TDF.md)
 **Application under test:** Test Data Factory 0.1.0, local dev server (`npm run dev`)
 **Automation:** `tests/ui/`, `tests/a11y/` (Playwright). See "Automation candidates" below.
-**Executed:** 2026-11-26, Chromium, by the Playwright suite (`npm run test:e2e`). Status reflects that run. Manual-only checks are marked Not Run until done by hand.
+**Executed:** 2026-11-26, Chromium, by the Playwright suite (`npm run test:e2e`). US-TDF-0007 added and run in Phase 4 (version 0.2.0). Status reflects that run. Manual-only checks are marked Not Run until done by hand.
 
 ## AC gaps
 1. **US-TDF-0001 AC1:** "Field N" uses the number of fields, so names can repeat after a removal (4 fields → remove one → add gives "Field 4", but a "Field 4" may already exist). Is a duplicate default name acceptable? **Needs confirmation.**
@@ -46,8 +46,16 @@
 | US-TDF-0006-TC-001 | Accessibility | Verify no WCAG 2.1 A/AA violations in the normal and invalid-field states (AC1, AC2, AC4) | App open with the User signup preset | 1. Run axe on the page.<br>2. Set Age Min value to 99.<br>3. Run axe again. | axe tags wcag2a, wcag2aa, wcag21a, wcag21aa | 0 violations both times; the error has role="alert"; the selected field has aria-current. | Chromium | Pass | 0 violations, light and dark mode |
 | US-TDF-0006-TC-002 | Accessibility › Keyboard | Verify the main flow works with the keyboard only (AC3) | App open with the User signup preset; mouse not used | 1. Press Tab to reach **+ Add field** and press Enter.<br>2. Tab to Name and type "Code".<br>3. Tab to the Nasty chip and press Space.<br>4. Tab to a Copy button and press Enter.<br>5. Tab to **JSON** and press Enter. | Name: Code | Each control is reachable in a logical order with a visible focus ring; each action works as with the mouse. | Chromium | Pass | Automated Tab path passes; focus outline present. Visual check by eye still to do |
 | US-TDF-0006-TC-003 | Responsive layout | Verify the layout works at 375 px wide (AC5) | Browser window 375 × 812 | 1. Open the app.<br>2. Scroll the page.<br>3. Select Full name and scroll the table. | — | Panels stack in one column; the page has no horizontal scroll; the table scrolls inside its panel if needed. | Chromium | Pass | Failed on first run: page 400 px wide (DEF-003). Passed after fix |
+| US-TDF-0007-TC-001 | Field builder › New types | Verify each new type shows its controls with the right defaults (AC1) | App open with the User signup preset | 1. Click **+ Add field**.<br>2. Change Type to Decimal / amount.<br>3. Change Type to Password.<br>4. Change Type to Dropdown. | — | 2. Min value 0, Max value 1000, Decimal places 2.<br>3. Min length 8, Max length 64; "Must contain" with 4 rules, all ticked.<br>4. "Options (one per line)" with Option A, Option B, Option C. | Chromium | Pass | As expected; axe 0 violations on each new editor. Options box first not found by its label (DEF-006). Passed after fix |
+| US-TDF-0007-TC-002 | Generated values › Decimal | Verify decimal boundaries are one step either side and formatted to the decimal places; an extra place is Confirm (AC2) | App open | 1. Load the **Payment** preset.<br>2. Select **Amount (₱)**.<br>3. Check the Boundary rows.<br>4. Find the "one more decimal place" row. | Amount 1–50,000, 2 places | 3. 1.00 Accept, 0.99 Reject, 50000.00 Accept, 50000.01 Reject.<br>4. 25000.505, Invalid / Confirm. | Chromium | Pass | As expected |
+| US-TDF-0007-TC-003 | Field builder › Validation | Verify decimal rule errors (AC3) | Continued from TC-002 | For each data row: enter the value, check the error, restore. | a. Decimal places 7<br>b. Min value 0.005<br>c. Min value 1e2<br>d. Max value 1,000<br>e. Min value 60000 | a. "Decimal places must be a whole number from 0 to 6"<br>b. "Min has more decimal places than allowed (2)"<br>c. "Min must be a number"<br>d. "Max must be a number"<br>e. "Min can't be greater than max" | Chromium | Pass | As expected (all 5 rows) |
+| US-TDF-0007-TC-004 | Generated values › Password | Verify password boundaries meet the rules and each rule has its own invalid value (AC4) | App open | 1. Load **Change password**.<br>2. Select **New password**.<br>3. Check the Boundary and Invalid rows.<br>4. Untick Symbol. | New password 8–64, all rules | 3. Boundaries 8 Accept, 7 Reject, 64 Accept, 65 Reject, each with A–Z, a–z, 0–9 and a symbol. Four "No … , otherwise valid" rows.<br>4. "No symbol" row disappears. | Chromium | Pass | As expected |
+| US-TDF-0007-TC-005 | Field builder › Validation | Verify a password length too short for the ticked rules shows an error (AC5) | Continued from TC-004 (all 4 rules ticked again) | 1. Set Min length to 3. | Min length 3 | "Min length must be at least 4 to fit the required character types". | Chromium | Pass | As expected |
+| US-TDF-0007-TC-006 | Generated values › Dropdown | Verify dropdown values and option rules (AC6) | App open | 1. Load **Payment**.<br>2. Select **Payment method**.<br>3. Check the rows.<br>4. Add a blank line and "GCash" again to Options. <br>5. Clear Options. | Options GCash, Maya, Credit card, Bank transfer | 3. Boundary GCash, Bank transfer; Valid Maya, Credit card; "Not an option" Reject; "GCash,Maya" Reject; "GCASH" Confirm; "GCash␣" Confirm.<br>4. "Options must be unique: "GCash" is listed twice".<br>5. "Add at least one option". | Chromium | Pass | Failed on first run (Options box label, DEF-006). Passed after fix |
+| US-TDF-0007-TC-007 | Presets | Verify the Change password and Payment presets (AC7) | App open | 1. Load **Change password**.<br>2. Load **Payment**. | — | 1. Current password, New password.<br>2. Amount (₱), Payment method, Tip (₱). | Chromium | Pass | As expected |
+| US-TDF-0007-TC-008 | Export / Saved fields | Verify new-type fields are exported and kept after a reload (AC8) | App open | 1. Load **Payment**.<br>2. Click **JSON** and open the file.<br>3. Reload the page. | — | 2. Keys Amount (₱), Payment method, Tip (₱), each with values.<br>3. The same 3 fields with the same rules. | Chromium | Pass | As expected |
 
-**28 test cases.** Coverage: US-TDF-0001 AC1–AC8 (TC-005 driven by the tool's own exported data); US-TDF-0002 AC1–AC9; US-TDF-0003 AC1–AC4; US-TDF-0004 AC1–AC6; US-TDF-0005 AC1–AC5 (+ gap 6); US-TDF-0006 AC1–AC5. Every AC is covered. Screen reader announcements (US-TDF-0006 AC4) are checked through attributes; a manual screen reader pass is not included.
+**36 test cases.** Coverage: US-TDF-0001 AC1–AC8 (TC-005 driven by the tool's own exported data); US-TDF-0002 AC1–AC9; US-TDF-0003 AC1–AC4; US-TDF-0004 AC1–AC6; US-TDF-0005 AC1–AC5 (+ gap 6); US-TDF-0006 AC1–AC5; US-TDF-0007 AC1–AC8. Every AC is covered. Screen reader announcements (US-TDF-0006 AC4) are checked through attributes; a manual screen reader pass is not included.
 
 ## Automation candidates
 
@@ -65,12 +73,13 @@
 | US-TDF-0006-TC-001 | Auto | `@axe-core/playwright` |
 | US-TDF-0006-TC-002 | Auto + manual | Automate the Tab path; check focus visibility by eye |
 | US-TDF-0006-TC-003 | Auto | Compare `scrollWidth` with the viewport width |
+| US-TDF-0007-TC-001 to TC-008 | Auto | `tests/ui/new-types.spec.ts`; axe also runs on each new editor |
 
-## Run summary (2026-11-26)
+## Run summary (2026-11-26, version 0.2.0)
 
 | | |
 |---|---|
-| Playwright tests | 51 (48 passed, 3 skipped as Confirm) |
-| Test cases passed | 27 of 28 (US-TDF-0004-TC-002 is manual-only, Not Run) |
-| Defects found | 5 (DEF-001 to DEF-005), all fixed and retested |
+| Playwright tests | 66 (60 passed; 6 skipped: 3 Confirm values, 3 live-site-only checks) |
+| Test cases passed | 35 of 36 (US-TDF-0004-TC-002 is manual-only, Not Run) |
+| Defects found | 6 (DEF-001 to DEF-006), all fixed and retested |
 | Found by the self-test | 2 (DEF-004, DEF-005) |

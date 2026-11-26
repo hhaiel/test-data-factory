@@ -61,9 +61,6 @@ export class FactoryPage {
   }
 
   input(label: string | RegExp): Locator {
-    // A <select> inside its <label> gets the selected option in its accessible name
-    // ("Type Text"), so the Type dropdown is found by role instead of an exact label.
-    if (label === 'Type') return this.editor.getByRole('combobox', { name: /^Type/ });
     return this.editor.getByLabel(label, { exact: typeof label === 'string' });
   }
 
@@ -97,7 +94,7 @@ export class FactoryPage {
     return this.table.locator('tbody tr').filter({ hasText: reason });
   }
 
-  async loadPreset(name: 'User signup' | 'Leave request' | 'Checkout') {
+  async loadPreset(name: 'User signup' | 'Leave request' | 'Change password' | 'Payment' | 'Checkout') {
     await this.preset.selectOption(name);
   }
 

@@ -12,6 +12,21 @@ export function describeRules(f: FieldSpec): string {
   if (f.type === 'text') parts.push(range(f.min, f.max, ' chars'));
   if (f.type === 'integer') parts.push(range(f.min, f.max));
   if (f.type === 'date') parts.push(range(f.minDate, f.maxDate));
+  if (f.type === 'decimal') {
+    parts.push(range(f.min, f.max));
+    const d = f.decimals ?? 2;
+    parts.push(`${d} decimal place${d === 1 ? '' : 's'}`);
+  }
+  if (f.type === 'password') {
+    parts.push(range(f.min, f.max, ' chars'));
+    const rules = (['upper', 'lower', 'digit', 'symbol'] as const).filter((r) => f.rules?.[r]);
+    const names = { upper: 'A–Z', lower: 'a–z', digit: '0–9', symbol: 'symbol' };
+    if (rules.length) parts.push(rules.map((r) => names[r]).join(' '));
+  }
+  if (f.type === 'dropdown') {
+    const n = f.options?.length ?? 0;
+    parts.push(`${n} option${n === 1 ? '' : 's'}`);
+  }
   parts.push(f.required ? 'required' : 'optional');
   return parts.filter(Boolean).join(', ');
 }

@@ -1,7 +1,7 @@
 {
   "name": "test-data-factory",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.2.0",
   "type": "module",
   "description": "Test Data Factory: describe a form field, get valid, boundary, invalid and nasty test data with the reason for each value.",
   "scripts": {

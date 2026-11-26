@@ -15,11 +15,11 @@ Test design techniques (boundary value analysis, equivalence partitioning, error
 | | |
 |---|---|
 | **What it does** | Generates test data for form and API fields, with an expected result and a reason for every value |
-| **Field types** | Text, whole number, email, date, PH mobile number |
+| **Field types** | Text, whole number, decimal / amount, email, date, PH mobile number, password, dropdown |
 | **Exports** | CSV (opens in Excel), JSON, Playwright TypeScript module |
 | **Stack** | React 19, TypeScript, Vite, Vitest, Playwright, axe-core |
-| **Tests** | 78 unit tests (Vitest) · 51 Playwright UI and accessibility tests · 28 test cases from 6 user stories |
-| **Defects** | 5 found and fixed, 2 of them by the tool testing itself ([defect log](defects/defect-log.md)) |
+| **Tests** | 118 unit tests (Vitest) · 66 Playwright UI and accessibility tests · 36 test cases from 7 user stories |
+| **Defects** | 6 found and fixed, 2 of them by the tool testing itself ([defect log](defects/defect-log.md)) |
 | **Live demo** | **[test-data-factory.vercel.app](https://test-data-factory.vercel.app)** |
 | **CI** | Every push runs the typecheck, unit tests, build and the full Playwright suite on GitHub Actions; Vercel redeploys `main` |
 
@@ -39,14 +39,14 @@ On its first run it found two real bugs in the tool: Min/Max accepted `1e2` and 
 
 | | |
 |---|---|
-| [User stories](user-stories/US-TDF.md) | 6 stories with acceptance criteria and open questions |
-| [Test cases](test-cases/TC-TDF.md) | 28 cases, AC gaps, automation candidates, run results |
-| [Defect log](defects/defect-log.md) | 5 defects with steps, expected and actual; all fixed and retested |
+| [User stories](user-stories/US-TDF.md) | 7 stories with acceptance criteria and open questions |
+| [Test cases](test-cases/TC-TDF.md) | 36 cases, AC gaps, automation candidates, run results |
+| [Defect log](defects/defect-log.md) | 6 defects with steps, expected and actual; all fixed and retested |
 | `tests/` | Playwright: one spec per user story, a page object, axe checks in light and dark mode, the self-test |
 
 ## How it works
 
-1. Pick a preset (User signup, Leave request, Checkout) or add your own fields.
+1. Pick a preset (User signup, Leave request, Change password, Payment, Checkout) or add your own fields.
 2. Set each field's type, limits and whether it's required.
 3. Read the generated values. Filter by category, copy a single value, or export everything.
 
@@ -68,6 +68,17 @@ On its first run it found two real bugs in the tool: Min/Max accepted `1e2` and 
 | `42.5` | Invalid | Reject | Decimal in a whole-number field |
 | `1e2` | Nasty | Reject | Scientific notation: JavaScript reads it as 100 |
 | `٤٢` | Nasty | Reject | Arabic-Indic digits: real digits, but not 0–9 |
+
+### More examples from the newer types
+
+| Field | Value | Category | Expect | Why it's here |
+|---|---|---|---|---|
+| Amount, ₱1.00–50,000.00 | `0.99` | Boundary | Reject | Just below the minimum, by 0.01 |
+| Amount | `25000.505` | Invalid | Confirm | One more decimal place than allowed: rejected, or silently rounded? |
+| Amount | `25.000,50` | Nasty | Reject | European format (comma as the decimal point): easy to misread by 1,000× |
+| Password, 8–64, all rules | `a7#testpasst` | Invalid | Reject | No uppercase letter, otherwise valid |
+| Password | `Password1!` | Nasty | Confirm | Meets the usual rules but is on every leaked-password list: should it be blocked? |
+| Payment method (dropdown) | `GCash,Maya` | Invalid | Reject | Two options at once: a single-choice field must refuse it |
 
 ## Run it locally
 
@@ -94,7 +105,7 @@ src/
   lib/
     types.ts            Field and value types
     generate.ts         Validates a field and picks the right generator
-    generators/         One file per field type (text, integer, email, date, phMobile)
+    generators/         One file per field type (text, integer, decimal, email, date, phMobile, password, dropdown)
     exporters.ts        CSV, JSON and Playwright output
     *.test.ts           Unit tests (Vitest)
   components/           Field list, field editor, values table
@@ -115,6 +126,8 @@ user-stories/  test-cases/  defects/
 - **No real personal data.** Emails use `example.com`, which is reserved for testing. The phone number is a well-known placeholder.
 - **Locked-down hosting.** `vercel.json` sends a strict Content-Security-Policy (scripts and styles only from the site itself), `nosniff`, and frame and referrer policies. The live-site tests check they're really sent.
 - **CSV is Excel-safe.** UTF-8 with a BOM, every cell quoted, so commas, quotes and accented letters survive.
+- **Money without floating-point errors.** Decimal values are calculated in whole centavos, because 0.1 + 0.2 isn't 0.3 in JavaScript.
+- **Password boundaries test one thing at a time.** Length boundaries meet every character rule, and each "missing a rule" value has a valid length, so a failure points at exactly one rule.
 - **Nasty values stay honest.** If a nasty value is also too long, it's expected to be rejected, and the reason says so.
 
 ## Related projects
