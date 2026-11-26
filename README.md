@@ -15,8 +15,9 @@ Test design techniques (boundary value analysis, equivalence partitioning, error
 | **What it does** | Generates test data for form and API fields, with an expected result and a reason for every value |
 | **Field types** | Text, whole number, email, date, PH mobile number |
 | **Exports** | CSV (opens in Excel), JSON, Playwright TypeScript module |
-| **Stack** | React 19, TypeScript, Vite, Vitest |
-| **Tests** | 55 unit tests on the generators and exporters (Playwright UI tests: Phase 2) |
+| **Stack** | React 19, TypeScript, Vite, Vitest, Playwright, axe-core |
+| **Tests** | 78 unit tests (Vitest) · 51 Playwright UI and accessibility tests · 28 test cases from 6 user stories |
+| **Defects** | 5 found and fixed, 2 of them by the tool testing itself ([defect log](defects/defect-log.md)) |
 | **Live demo** | [link once deployed in Phase 3] |
 
 ## Why I built it
@@ -24,6 +25,21 @@ Test design techniques (boundary value analysis, equivalence partitioning, error
 Every time I write test cases I build the same lists by hand: the minimum, one below it, the maximum, one above it, empty, spaces only, an emoji, something that looks like SQL. This tool does that part, so the time goes into the cases that need thinking.
 
 It also shows the reasoning. Every value says *why* it's in the set ("Just below the minimum (17)"), so the output reads like test design, not random data.
+
+## The tool tests itself
+
+The field editor's **Min length** input is described in the tool like any other field (whole number, 0–100,000, optional). A script opens the app, builds that field and clicks the tool's own **Playwright** export button. A data-driven test then types every exported value into the editor and checks it's accepted or rejected as the data says.
+
+On its first run it found two real bugs in the tool: Min/Max accepted `1e2` and `0x1A` as numbers (read as 100 and 26), and Min length had no upper limit ([DEF-004, DEF-005](defects/defect-log.md)).
+
+## QA work
+
+| | |
+|---|---|
+| [User stories](user-stories/US-TDF.md) | 6 stories with acceptance criteria and open questions |
+| [Test cases](test-cases/TC-TDF.md) | 28 cases, AC gaps, automation candidates, run results |
+| [Defect log](defects/defect-log.md) | 5 defects with steps, expected and actual; all fixed and retested |
+| `tests/` | Playwright: one spec per user story, a page object, axe checks in light and dark mode, the self-test |
 
 ## How it works
 
@@ -55,8 +71,11 @@ It also shows the reasoning. Every value says *why* it's in the set ("Just below
 ```bash
 npm install
 npm run dev        # http://localhost:5173
-npm test           # unit tests
-npm run build      # typecheck + production build
+npm test                       # unit tests (Vitest)
+npm run test:e2e               # Playwright UI + accessibility tests (starts its own server)
+npm run test:report            # open the last Playwright HTML report
+npm run export-self-test-data  # regenerate the self-test data through the app's UI
+npm run build                  # typecheck + production build
 ```
 
 ## Project structure
@@ -71,6 +90,13 @@ src/
     *.test.ts           Unit tests (Vitest)
   components/           Field list, field editor, values table
   App.tsx
+tests/
+  ui/                   Playwright specs, one per user story, plus self-test.spec.ts
+  a11y/                 axe-core and keyboard checks
+  support/              Page object
+  data/                 Test data exported by the tool itself
+scripts/                export-self-test-data.mjs
+user-stories/  test-cases/  defects/
 ```
 
 ## Design decisions

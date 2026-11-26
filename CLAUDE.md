@@ -18,9 +18,16 @@ Portfolio project: a web tool that generates test data for form fields. Read thi
 ## Commands
 - `npm run dev`: local app on http://localhost:5173
 - `npm test`: Vitest unit tests
+- `npm run test:e2e`: Playwright UI + accessibility tests (starts its own server on port 4176)
+- `npm run export-self-test-data`: regenerates `tests/data/min-length.data.ts` through the app's own export button. Don't edit that file by hand.
 - `npm run build`: typecheck + production build
 
-## When the QA phase starts (ROADMAP Phase 2)
+## Tests
+- Playwright test titles start with the test case ID (`US-TDF-0001-TC-003 …`) so results map to `test-cases/TC-TDF.md`.
+- Locators are role- and label-based, through the page object in `tests/support/factory-page.ts`.
+- When a test fails, decide whether the app or the test is wrong before changing anything. App bugs go in `defects/defect-log.md`.
+
+## QA files
 Use the same IDs and formats as `orangehrm-qa-portfolio/CLAUDE.md`, with module code `TDF`:
 - User story `US-TDF-0001`, test case `US-TDF-0001-TC-001`, defect `DEF-001`
 - Test cases via the `test-case-writer` skill, defects via the `bug-hunter` skill

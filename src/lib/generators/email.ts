@@ -10,7 +10,7 @@ export function generateEmail(field: FieldSpec): TestValue[] {
   return [
     { value: 'maria.santos@example.com', category: 'valid', expect: 'accept', reason: 'Standard address' },
     { value: 'maria+test@example.com', category: 'valid', expect: 'accept', reason: 'Plus addressing: valid and common, often wrongly rejected' },
-    { value: 'm.santos@mail.example.co.uk', category: 'valid', expect: 'accept', reason: 'Subdomain and two-part country domain' },
+    { value: 'm.santos@mail.example.com', category: 'valid', expect: 'accept', reason: 'Subdomain in the domain part' },
 
     { value: `${local64}@example.com`, category: 'boundary', expect: 'accept', reason: 'Part before @ is 64 characters, the standard maximum' },
     { value: `${local64}a@example.com`, category: 'boundary', expect: 'reject', reason: 'Part before @ is 65 characters, one over the maximum' },

@@ -3,7 +3,43 @@ import { generateEmail } from './generators/email';
 import { generateInteger } from './generators/integer';
 import { generatePhMobile } from './generators/phMobile';
 import { generateText } from './generators/text';
-import type { FieldSpec, TestValue } from './types';
+import { FIELD_TYPE_LABELS, type FieldSpec, type TestValue } from './types';
+
+/** Longest text the tool will build a boundary value for. */
+export const MAX_TEXT_LENGTH = 100_000;
+
+/**
+ * Reads a Min/Max input. Empty means "no limit". Only plain digits with an optional minus
+ * count as a number: Number() would also accept "1e2" (100) and "0x1A" (26), which a tester
+ * never means (DEF-004). Anything else becomes NaN, which validateField reports.
+ */
+export function parseLimit(text: string): number | undefined {
+  const t = text.trim();
+  if (t === '') return undefined;
+  return /^-?\d+$/.test(t) ? Number(t) : Number.NaN;
+}
+
+/**
+ * Checks that saved data really is a field description (DEF-002): data saved by another
+ * version, or edited by hand, may be valid JSON with the wrong content.
+ */
+export function isFieldSpec(value: unknown): value is FieldSpec {
+  if (typeof value !== 'object' || value === null) return false;
+  const f = value as Record<string, unknown>;
+  const optionalNumber = (v: unknown) => v === undefined || v === null || typeof v === 'number';
+  const optionalString = (v: unknown) => v === undefined || v === null || typeof v === 'string';
+  return (
+    typeof f.id === 'string' &&
+    typeof f.name === 'string' &&
+    typeof f.type === 'string' &&
+    Object.hasOwn(FIELD_TYPE_LABELS, f.type) &&
+    typeof f.required === 'boolean' &&
+    optionalNumber(f.min) &&
+    optionalNumber(f.max) &&
+    optionalString(f.minDate) &&
+    optionalString(f.maxDate)
+  );
+}
 
 /**
  * Checks a field description before generating anything.
@@ -13,10 +49,12 @@ export function validateField(field: FieldSpec): string | null {
   if (!field.name.trim()) return 'Give the field a name';
   if (field.type === 'text' || field.type === 'integer') {
     for (const [label, n] of [['Min', field.min], ['Max', field.max]] as const) {
-      if (n !== undefined && !Number.isInteger(n)) return `${label} must be a whole number`;
+      // Safe integers only: 1e20 is "whole" to JavaScript but can't be stored exactly.
+      if (n !== undefined && !Number.isSafeInteger(n)) return `${label} must be a whole number`;
     }
     if (field.type === 'text' && ((field.min ?? 0) < 0 || (field.max ?? 0) < 0)) return "Length can't be negative";
-    if (field.type === 'text' && field.max !== undefined && field.max > 100_000) return 'Max length is 100,000 characters';
+    if (field.type === 'text' && field.min !== undefined && field.min > MAX_TEXT_LENGTH) return 'Min length is 100,000 characters at most';
+    if (field.type === 'text' && field.max !== undefined && field.max > MAX_TEXT_LENGTH) return 'Max length is 100,000 characters';
     if (field.min !== undefined && field.max !== undefined && field.min > field.max) return "Min can't be greater than max";
   }
   if (field.type === 'date') {

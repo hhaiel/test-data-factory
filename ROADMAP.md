@@ -7,7 +7,7 @@
 ```
 Phase 0  Setup                         ½ day
 Phase 1  First version (done)          ✓
-Phase 2  QA the tool                   3–4 days
+Phase 2  QA the tool (done)            ✓
 Phase 3  CI + deploy                   1 day
 Phase 4  More field types + nasties    3–4 days
 Phase 5  Plain-English input (AI)      2–3 days
@@ -18,7 +18,7 @@ Phase 6  Report + polish               1 day
 
 ## Phase 0: Setup (½ day)
 - [ ] `npm install`, `npm run dev`, open http://localhost:5173 and try every preset
-- [ ] `npm test` passes (55 tests)
+- [ ] `npm test` passes (78 unit tests) and `npm run test:e2e` passes (48 passed, 3 skipped)
 - [ ] `git init`, first commit, create a **public** GitHub repo, push
 - [ ] Read through `src/lib/generators/` so you can explain every value in an interview
 
@@ -34,16 +34,18 @@ Phase 6  Report + polish               1 day
 - [x] Fields saved in the browser between visits
 - [x] 55 unit tests (Vitest)
 
-## Phase 2: QA the tool (3–4 days)
-Treat it as an application under test, the same way as OrangeHRM.
-- [ ] Write user stories + ACs: `user-stories/US-TDF.md` (field builder, generation, filters, export, saved fields)
-- [ ] Generate test cases with the **test-case-writer** skill: `test-cases/TC-TDF.md`
-- [ ] Execute them manually; log real bugs with the **bug-hunter** skill in `defects/defect-log.md`
-- [ ] Add Playwright: `tests/ui/` (build a field, filter, copy, each export downloads a file with the right content)
-- [ ] Add `@axe-core/playwright` accessibility checks on the main screen
-- [ ] **Use the tool on itself:** export test data for the field editor's Min/Max inputs and drive a data-driven Playwright test with it
+## Phase 2: QA the tool ✓
+Treated as an application under test, the same way as OrangeHRM.
+- [x] User stories + ACs: `user-stories/US-TDF.md` (6 stories)
+- [x] Test cases with the **test-case-writer** skill: `test-cases/TC-TDF.md` (28 cases, 7 AC gaps)
+- [x] Playwright: `tests/ui/` (one spec per story, page object, downloads read and checked, Playwright export compiled with `tsc --strict`)
+- [x] `@axe-core/playwright` checks in light and dark mode, keyboard-only flow, 375 px layout
+- [x] **The tool on itself:** `npm run export-self-test-data` exports data for the editor's Min length input through the app's UI; `tests/ui/self-test.spec.ts` drives a data-driven test with it
+- [x] Defects logged with the **bug-hunter** skill: `defects/defect-log.md` (5 found, 5 fixed and retested; 2 found by the self-test)
+- [ ] **Your part:** run the test cases by hand once (especially US-TDF-0004-TC-002 in Excel and the focus check in US-TDF-0006-TC-002), and decide the open "Needs confirmation" items
+- [ ] Optional: one 60-minute exploratory session
 
-**Done when:** UI tests pass locally, defects logged, at least one test runs on data the tool generated.
+**Done when:** UI tests pass locally, defects logged, at least one test runs on data the tool generated. ✓ (manual pass still to do)
 
 ## Phase 3: CI + deploy (1 day)
 - [ ] GitHub Actions: typecheck, unit tests, build, Playwright on every push and pull request

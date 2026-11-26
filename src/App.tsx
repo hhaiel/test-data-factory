@@ -4,7 +4,7 @@ import { FieldList } from './components/FieldList';
 import { ValuesTable } from './components/ValuesTable';
 import { download } from './lib/download';
 import { buildDataSet, toCsv, toJson, toPlaywright } from './lib/exporters';
-import { generate, validateField } from './lib/generate';
+import { generate, isFieldSpec, validateField } from './lib/generate';
 import { PRESETS, fieldsFromPreset, newId } from './lib/presets';
 import type { FieldSpec } from './lib/types';
 
@@ -14,9 +14,10 @@ function loadFields(): FieldSpec[] {
   try {
     const saved = localStorage.getItem(STORAGE_KEY);
     if (saved) {
-      const parsed = JSON.parse(saved) as FieldSpec[];
-      // JSON turns an unfinished number (NaN) into null; treat that as "no limit".
-      if (Array.isArray(parsed) && parsed.length > 0) {
+      const parsed: unknown = JSON.parse(saved);
+      // Every field must be a real field description, or the whole set is ignored (DEF-002).
+      if (Array.isArray(parsed) && parsed.length > 0 && parsed.every(isFieldSpec)) {
+        // JSON turns an unfinished number (NaN) into null; treat that as "no limit".
         return parsed.map((f) => ({ ...f, min: f.min ?? undefined, max: f.max ?? undefined }));
       }
     }

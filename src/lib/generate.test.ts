@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { generate, validateField } from './generate';
+import { generate, isFieldSpec, parseLimit, validateField } from './generate';
 import { parseIsoDate } from './generators/date';
 import { charLength } from './strings';
 import type { FieldSpec, TestValue } from './types';
@@ -124,8 +124,8 @@ describe('email', () => {
   const values = generate(field({ type: 'email' }));
   it('only uses reserved example domains', () => {
     for (const v of values) {
-      const domain = v.value.split('@').pop() ?? '';
-      if (v.value.includes('@') && domain) expect(domain).toMatch(/example(\.|$)|exämple/i);
+      const domain = (v.value.split('@').pop() ?? '').trim();
+      if (v.value.includes('@') && domain) expect(domain).toMatch(/(^|\.)example(\.com)?$|^exämple\.com$/i);
     }
   });
   it('accepts plus addressing and a 64-character local part', () => {
@@ -171,5 +171,48 @@ describe('PH mobile', () => {
   it('rejects one digit too few or too many', () => {
     expect(find(values, '0917123456')?.expect).toBe('reject');
     expect(find(values, '091712345678')?.expect).toBe('reject');
+  });
+});
+
+describe('parseLimit (DEF-004)', () => {
+  it.each([
+    ['', undefined],
+    ['  ', undefined],
+    ['42', 42],
+    [' 42 ', 42],
+    ['-3', -3],
+    ['007', 7],
+  ])('reads %j as %j', (text, n) => {
+    expect(parseLimit(text)).toBe(n);
+  });
+  it.each(['1e2', '0x1A', '2.5', 'abc', '+5', '٤٢', '--1'])('rejects %j as not a plain whole number', (text) => {
+    expect(parseLimit(text)).toBeNaN();
+  });
+});
+
+describe('limits (DEF-004, DEF-005)', () => {
+  it('rejects a whole number too large to store exactly', () => {
+    expect(validateField(field({ type: 'integer', min: 1e20 }))).toBe('Min must be a whole number');
+  });
+  it('caps min length at 100,000 like max length', () => {
+    expect(validateField(field({ min: 100_000 }))).toBeNull();
+    expect(validateField(field({ min: 100_001 }))).toBe('Min length is 100,000 characters at most');
+  });
+});
+
+describe('isFieldSpec (DEF-002)', () => {
+  it('accepts a real field, including null limits from JSON', () => {
+    expect(isFieldSpec({ id: 'a', name: 'Age', type: 'integer', required: true, min: null, max: 65 })).toBe(true);
+  });
+  it.each([
+    ['an unknown type', { id: 'a', name: 'Bad', type: 'colour', required: true }],
+    ['a missing name', { id: 'a', type: 'text', required: true }],
+    ['required as a string', { id: 'a', name: 'X', type: 'text', required: 'yes' }],
+    ['a text limit', { id: 'a', name: 'X', type: 'text', required: true, min: '2' }],
+    ['a type that is an Object method', { id: 'a', name: 'X', type: 'toString', required: true }],
+    ['null', null],
+    ['a string', 'field'],
+  ])('rejects %s', (_label, value) => {
+    expect(isFieldSpec(value)).toBe(false);
   });
 });

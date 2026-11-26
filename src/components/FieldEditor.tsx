@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { parseLimit } from '../lib/generate';
 import { FIELD_TYPE_LABELS, type FieldSpec, type FieldType } from '../lib/types';
 
 interface Props {
@@ -12,11 +13,6 @@ function useNumberText(initial?: number) {
   return useState(initial === undefined ? '' : String(initial));
 }
 
-function parseOptional(text: string): number | undefined {
-  if (text.trim() === '') return undefined;
-  const n = Number(text);
-  return Number.isFinite(n) ? n : NaN;
-}
 
 export function FieldEditor({ field, error, onChange }: Props) {
   const [minText, setMinText] = useNumberText(field.min);
@@ -65,7 +61,7 @@ export function FieldEditor({ field, error, onChange }: Props) {
               value={minText}
               onChange={(e) => {
                 setMinText(e.target.value);
-                set({ min: parseOptional(e.target.value) });
+                set({ min: parseLimit(e.target.value) });
               }}
               placeholder="None"
             />
@@ -77,7 +73,7 @@ export function FieldEditor({ field, error, onChange }: Props) {
               value={maxText}
               onChange={(e) => {
                 setMaxText(e.target.value);
-                set({ max: parseOptional(e.target.value) });
+                set({ max: parseLimit(e.target.value) });
               }}
               placeholder="None"
             />

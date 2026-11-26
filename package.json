@@ -10,13 +10,22 @@
     "preview": "vite preview",
     "typecheck": "tsc -b",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "test:unit": "vitest run",
+    "test:e2e": "playwright test",
+    "test:ui": "playwright test tests/ui",
+    "test:a11y": "playwright test tests/a11y",
+    "test:all": "vitest run && playwright test",
+    "test:report": "playwright show-report",
+    "export-self-test-data": "node scripts/export-self-test-data.mjs"
   },
   "dependencies": {
     "react": "^19.3.1",
     "react-dom": "^19.3.1"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.14.1",
+    "@playwright/test": "^1.65.1",
     "@types/node": "^26.6.11",
     "@types/react": "^19.3.3",
     "@types/react-dom": "^19.3.0",
