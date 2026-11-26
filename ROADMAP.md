@@ -8,7 +8,7 @@
 Phase 0  Setup                         ½ day
 Phase 1  First version (done)          ✓
 Phase 2  QA the tool (done)            ✓
-Phase 3  CI + deploy                   1 day
+Phase 3  CI + deploy (done)            ✓
 Phase 4  More field types + nasties    3–4 days
 Phase 5  Plain-English input (AI)      2–3 days
 Phase 6  Report + polish               1 day
@@ -47,13 +47,16 @@ Treated as an application under test, the same way as OrangeHRM.
 
 **Done when:** UI tests pass locally, defects logged, at least one test runs on data the tool generated. ✓ (manual pass still to do)
 
-## Phase 3: CI + deploy (1 day)
-- [ ] GitHub Actions: typecheck, unit tests, build, Playwright on every push and pull request
-- [ ] Upload the Playwright HTML report as an artifact
-- [ ] Deploy to Vercel (static site, no server needed) and put the link in the README
-- [ ] CI badge in the README
+## Phase 3: CI + deploy ✓
+- [x] GitHub Actions (`.github/workflows/ci.yml`): typecheck, unit tests, build, Playwright on every push and pull request (about 1 minute)
+- [x] Playwright HTML report uploaded as an artifact (kept 14 days)
+- [x] Deployed to Vercel: https://test-data-factory.vercel.app (redeploys on every push to `main`)
+- [x] `vercel.json`: security headers (CSP, nosniff, frame and referrer policies) and long-term caching for built assets
+- [x] Live-site checks in `tests/live/` (run with `BASE_URL`); full suite passed against the live site on 2026-11-26 (51 passed, 3 skipped)
+- [x] CI badge in the README
+- [ ] Optional: in Vercel › Settings › Git, make production deploys wait for the GitHub CI check, so a failing build never goes live
 
-**Done when:** green badge, live link.
+**Done when:** green badge, live link. ✓
 
 ## Phase 4: More field types + nasty values (3–4 days)
 Pick what's most useful; each type needs generators + unit tests.

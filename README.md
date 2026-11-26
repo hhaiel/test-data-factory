@@ -2,6 +2,8 @@
 
 [![CI](https://github.com/hhaiel/test-data-factory/actions/workflows/ci.yml/badge.svg)](https://github.com/hhaiel/test-data-factory/actions/workflows/ci.yml)
 
+**[Try it live →](https://test-data-factory.vercel.app)**
+
 > Describe a form field and its rules. Get the values worth testing, sorted into **valid**, **boundary**, **invalid** and **nasty**, each with the expected result and **the reason it's there**.
 
 Test design techniques (boundary value analysis, equivalence partitioning, error guessing) built into a tool, instead of written up in a document.
@@ -18,7 +20,8 @@ Test design techniques (boundary value analysis, equivalence partitioning, error
 | **Stack** | React 19, TypeScript, Vite, Vitest, Playwright, axe-core |
 | **Tests** | 78 unit tests (Vitest) · 51 Playwright UI and accessibility tests · 28 test cases from 6 user stories |
 | **Defects** | 5 found and fixed, 2 of them by the tool testing itself ([defect log](defects/defect-log.md)) |
-| **Live demo** | [link once deployed in Phase 3] |
+| **Live demo** | **[test-data-factory.vercel.app](https://test-data-factory.vercel.app)** |
+| **CI** | Every push runs the typecheck, unit tests, build and the full Playwright suite on GitHub Actions; Vercel redeploys `main` |
 
 ## Why I built it
 
@@ -78,6 +81,12 @@ npm run export-self-test-data  # regenerate the self-test data through the app's
 npm run build                  # typecheck + production build
 ```
 
+Run the whole Playwright suite against the deployed site, including the live-only checks in `tests/live/` (security headers, the app working under the Content-Security-Policy, asset caching):
+
+```powershell
+$env:BASE_URL = 'https://test-data-factory.vercel.app'; npm run test:e2e
+```
+
 ## Project structure
 
 ```
@@ -104,6 +113,7 @@ user-stories/  test-cases/  defects/
 - **Values are strings.** Everything typed into a form is a string, so `"42"`, `" 42 "` and `"042"` are different test values.
 - **Length counts characters, not bytes.** `José` is 4 and `😀` is 1. Apps disagree on this, which is why emoji are in the nasty set.
 - **No real personal data.** Emails use `example.com`, which is reserved for testing. The phone number is a well-known placeholder.
+- **Locked-down hosting.** `vercel.json` sends a strict Content-Security-Policy (scripts and styles only from the site itself), `nosniff`, and frame and referrer policies. The live-site tests check they're really sent.
 - **CSV is Excel-safe.** UTF-8 with a BOM, every cell quoted, so commas, quotes and accented letters survive.
 - **Nasty values stay honest.** If a nasty value is also too long, it's expected to be rejected, and the reason says so.
 
