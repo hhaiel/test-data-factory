@@ -1,6 +1,6 @@
 # Test Data Factory
 
-<!-- CI badge goes here in Phase 3 -->
+[![CI](https://github.com/hhaiel/test-data-factory/actions/workflows/ci.yml/badge.svg)](https://github.com/hhaiel/test-data-factory/actions/workflows/ci.yml)
 
 > Describe a form field and its rules. Get the values worth testing, sorted into **valid**, **boundary**, **invalid** and **nasty**, each with the expected result and **the reason it's there**.
 
